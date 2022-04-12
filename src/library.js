@@ -328,6 +328,26 @@ const gooex = (function () {
     }
   })()
 
+  const Album = (function () {
+    return {
+      getAlbumWithTracks(value) {
+        value = value.track || value;
+        let albumId = typeof value == 'string' ? value : (value.albumId || value.albums[0].id);
+        return Wrapper.Albums.getAlbumWithTracks(albumId);
+      },
+
+      getBestTracks(value) {
+        let album = value;
+        if (!value.hasOwnProperty('volumes') || !value.hasOwnProperty('bests')) {
+          album = this.getAlbumWithTracks(value);
+        }
+        if (album.volumes.length == 0 || album.bests.length == 0)
+          return []
+        return album.volumes.flat(1).filter(t => album.bests.some(id => t.id == id));
+      }
+    }
+  })()
+
   const Cache = (function () {
     const ROOT_FOLDER = getFolder(DriveApp, 'gooex data', true);
     const USER_FOLDER = Auth.UserId ? getFolder(ROOT_FOLDER, Auth.UserId, true) : ROOT_FOLDER;
