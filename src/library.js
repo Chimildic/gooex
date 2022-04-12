@@ -331,7 +331,7 @@ const gooex = (function () {
   const Album = (function () {
     return {
       getAlbumWithTracks(value) {
-        value = value.track || value.trackId || value;
+        value = value.track || value.trackId || value.albumId || value;
         let albumId = typeof value == 'string' ? value : (value.albumId || value.albums[0].id);
         let album = Wrapper.Albums.getAlbumWithTracks(albumId);
         return album.error == 'not-found' && album.duplicates && album.duplicates.length > 0
@@ -759,7 +759,7 @@ const gooex = (function () {
       match(items, strRegex, invert = false) {
         let regex = new RegExp(strRegex, 'i');
         items.replace(items.filter((item) => {
-          item = item.track || item.trackId || item;
+          item = item.track || item;
           if (typeof item == 'undefined') {
             return false;
           } else if (item.hasOwnProperty('albums') && item.hasOwnProperty('artists')) {
