@@ -602,8 +602,9 @@ const gooex = (function () {
         }
         let playlists = Wrapper.Playlists.getPlaylists(value);
         return playlists.map((p, i) => {
-          value[i].playlist = Wrapper.Playlists.getPlaylistWithTracks(p.kind, p.uid);
-          return value[i].tracks;
+          let item = value.find(v => v.kind == p.kind);
+          item.playlist = Wrapper.Playlists.getPlaylistWithTracks(p.kind, p.uid);
+          return item.playlist.tracks;
         }).flat(1);
       },
 
