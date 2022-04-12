@@ -882,7 +882,7 @@ const gooex = (function () {
       },
 
       Contexts: {
-        get(contextCount, trackCount, types = 'artist,album,playlist,radio', otherTracks = false) {
+        get(trackCount, contextCount, types = 'artist,album,playlist,radio', otherTracks = false) {
           return request()
             .withPath(`/users/${Auth.UserId}/contexts`)
             .withQuery({
