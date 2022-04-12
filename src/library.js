@@ -1,5 +1,5 @@
 const gooex = (function () {
-  const GOOEX_BUILD = '2022.04.11';
+  const GOOEX_BUILD = '2022.04.12';
   const KeyValue = UserProperties.getProperties();
 
   function parseJsonString(content) {
@@ -867,27 +867,32 @@ const gooex = (function () {
       },
 
       Likes: (function () {
-        String.prototype.toTitleCase = function () {
-          return this[0].toUpperCase() + this.slice(1);
+        const ACTION_TYPE = { ADD: 'add-multiple', REMOVE: 'remove' };
+        return {
+          addAlbums(ids) { return post('likes', 'album', ACTION_TYPE.ADD, ids) },
+          addArtists(ids) { return post('likes', 'artist', ACTION_TYPE.ADD, ids) },
+          addPlaylist(ids) { return post('likes', 'playlist', ACTION_TYPE.ADD, ids) },
+          addTracks(ids) { return post('likes', 'track', ACTION_TYPE.ADD, ids) },
+          addDislikeTracks(ids) { return post('dislikes', 'track', ACTION_TYPE.ADD, ids) },
+
+          removeAlbums(ids) { return post('likes', 'album', ACTION_TYPE.REMOVE, ids) },
+          removeArtists(ids) { return post('likes', 'artist', ACTION_TYPE.REMOVE, ids) },
+          removePlaylist(ids) { return post('likes', 'playlist', ACTION_TYPE.REMOVE, ids) },
+          removeTracks(ids) { return post('likes', 'track', ACTION_TYPE.REMOVE, ids) },
+          removeDislikeTracks(ids) { return post('dislikes', 'track', ACTION_TYPE.REMOVE, ids) },
+
+          getLikedAlbums(userId) { return get('likes', 'album', userId) },
+          getLikedArtists(userId) { return get('likes', 'artist', userId) },
+          getLikedPlaylist(userId) { return get('likes', 'playlist', userId) },
+          getLikedTracks(userId) { return get('likes', 'track', userId) },
+          getDislikedTracks() { return get('dislikes', 'track') }
         }
 
-        const ACTION_TYPE = { ADD: 'add-multiple', REMOVE: 'remove' };
-        const OBJECT_TYPE = ['track', 'album', 'artist', 'playlist'];
-        let methods = OBJECT_TYPE.reduce((methods, objType) => {
-          methods[`add${objType.toTitleCase()}s`] = (ids) => post('likes', objType, ACTION_TYPE.ADD, ids);
-          methods[`remove${objType.toTitleCase()}s`] = (ids) => post('likes', objType, ACTION_TYPE.REMOVE, ids);
-          methods[`getLiked${objType.toTitleCase()}s`] = (userId) => get('likes', objType, userId);
-          return methods;
-        }, {});
-        methods['addDislikeTracks'] = (ids) => post('dislikes', 'track', ACTION_TYPE.ADD, ids);
-        methods['removeDislikeTracks'] = (ids) => post('dislikes', 'track', ACTION_TYPE.REMOVE, ids);
-        methods['getDislikedTracks'] = () => get('dislikes', 'track');
-        return methods;
-
         function get(subpath, objType, userId) {
-          return request()
+          let response = request()
             .withPath(`/users/${userId || Auth.UserId}/${subpath}/${objType}s`)
             .get();
+          return response.library ? response.library.tracks : response;
         }
 
         function post(subpath, objType, actionType, payload) {
@@ -1007,5 +1012,14 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Cache, Combiner, Converter, CustomUrlFetchApp, Filter, Order, Playlist, Selector, Wrapper, customRequest: request }
+  const Like = (function () {
+    let overrideMethods = {
+      getLikedAlbums(userId) { return Wrapper.Albums.getAlbums(Wrapper.Likes.getLikedAlbums(userId)) },
+      getLikedTracks(userId) { return Wrapper.Tracks.getTracks(Wrapper.Likes.getLikedTracks(userId)) },
+      getDislikedTracks() { return Wrapper.Tracks.getTracks(Wrapper.Likes.getDislikedTracks()) }
+    }
+    return Object.assign({}, Wrapper.Likes, overrideMethods);
+  })()
+
+  return { Auth, Album, Cache, Combiner, Converter, CustomUrlFetchApp, Filter, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
 })()
