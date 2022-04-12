@@ -2,24 +2,24 @@ const gooex = (function () {
   const GOOEX_BUILD = '2022.04.11';
   const KeyValue = UserProperties.getProperties();
 
-  JSON.parseFromString = function (content) {
+  function parseJsonString(content) {
     try {
       return JSON.parse(content);
     } catch (error) {
-      Admin.printError('Не удалось преобразовать строку JSON в объект JavaScript\n', error.stack, '\n', content);
+      Admin.printError(`Не удалось преобразовать строку JSON в объект JavaScript\n${error.stack}\n${content}`);
       return undefined;
     }
   }
 
-  JSON.parseFromResponse = function (response) {
+  function parseJsonResponse(response) {
     let content = response.getContentText();
     if (content.length == 0) {
-      return { msg: 'Пустое тело ответа', status: response.getResponseCode() };
+      return { msg: 'Пустой ответ', status: response.getResponseCode() };
     }
-    return JSON.parseFromString(content);
+    return parseJsonString(content);
   }
 
-  String.prototype.formatName = function () {
+  String.prototype.clearName = function () {
     return this.toLowerCase()
       .replace(/['`,?!@#$%^&*()+-./\\]/g, ' ')
       .replace(/\s{2,}/g, ' ')
@@ -159,7 +159,7 @@ const gooex = (function () {
       function onSuccess() {
         let type = response.getHeaders()['Content-Type'] || '';
         if (type.includes('json')) {
-          return JSON.parseFromResponse(response) || [];
+          return parseJsonResponse(response) || [];
         }
         return response;
       }
@@ -482,10 +482,6 @@ const gooex = (function () {
   })()
 
   const Filter = (function () {
-    Array.prototype.toObject = function (parseMethod) {
-      return this.reduce((result, item, i) => (result[parseMethod(item)] = i, result), {});
-    }
-
     return {
       /**
        * Исключить треки из массива по примеру.
@@ -495,7 +491,7 @@ const gooex = (function () {
        * @param {String} mode Режим выбора исполнителей: `every` или `first`.
        */
       removeTracks(target, example, invert = false, mode = 'every') {
-        let ids = example.toObject(item => item.id);
+        let ids = idToKey(example);
         let names = example.map(item => getTrackKeys(item)).flat(1);
         target.replace(target.filter(item => invert ^ (
           !ids.hasOwnProperty(item.id) &&
@@ -515,7 +511,7 @@ const gooex = (function () {
           ? mode == 'every' ? item.artists : item.artists[0]
           : item
         ).flat(1);
-        let ids = artists.toObject(item => item.id);
+        let ids = idToKey(artists);
         target.replace(target.filter(item => invert ^
           !getArtistIds(item, mode).some(id => ids.hasOwnProperty(id))
         ));
@@ -543,7 +539,7 @@ const gooex = (function () {
         }));
 
         function test(str) {
-          return regex.test(str.formatName());
+          return regex.test(str.clearName());
         }
       }
     }
@@ -551,8 +547,8 @@ const gooex = (function () {
     function getTrackKeys(item, mode) {
       item = item.track || item;
       return mode == 'every'
-        ? item.artists.map(artist => `${artist.name} ${item.title}`.formatName())
-        : [`${item.artists[0].name} ${item.title}`.formatName()];
+        ? item.artists.map(artist => `${artist.name} ${item.title}`.clearName())
+        : [`${item.artists[0].name} ${item.title}`.clearName()];
     }
 
     function getArtistIds(item, mode) {
@@ -561,6 +557,9 @@ const gooex = (function () {
         : item.artists ? [item.artists[0].id] : [item.id]
     }
 
+    function idToKey(array) {
+      return array.reduce((result, item, i) => (result[item.id] = i, result), {});
+    }
   })()
 
   const Selector = (function () {
@@ -837,5 +836,5 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Combiner, Converter, CustomUrlFetchApp, Order, Playlist, Selector, Filter, Wrapper, customRequest: request,  }
+  return { Auth, Combiner, Converter, CustomUrlFetchApp, Order, Playlist, Selector, Filter, Wrapper, customRequest: request, }
 })()
