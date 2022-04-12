@@ -328,6 +328,175 @@ const gooex = (function () {
     }
   })()
 
+  const Cache = (function () {
+    const ROOT_FOLDER = getFolder(DriveApp, 'gooex data', true);
+    const USER_FOLDER = Auth.UserId ? getFolder(ROOT_FOLDER, Auth.UserId, true) : ROOT_FOLDER;
+    const Storage = (function () {
+      let storage = {};
+      return {
+        getFile: (filepath) => get(filepath, 'file'),
+        setFile: (filepath, file) => set(filepath, 'file', file),
+        getContent: (filepath) => get(filepath, 'content'),
+        setContent: (filepath, content) => set(filepath, 'content', content),
+      }
+
+      function get(rootKey, valueKey) {
+        return storage[rootKey] && storage[rootKey][valueKey]
+          ? storage[rootKey][valueKey]
+          : undefined;
+      }
+
+      function set(rootKey, valueKey, value) {
+        storage[rootKey] = storage[rootKey] || {};
+        storage[rootKey][valueKey] = value;
+      }
+    })();
+
+    if (ROOT_FOLDER.getId() != USER_FOLDER.getId()) {
+      let rootFiles = ROOT_FOLDER.getFiles();
+      while (rootFiles.hasNext()) {
+        rootFiles.next().moveTo(USER_FOLDER);
+      }
+    }
+    return {
+      get RootFolder() { return ROOT_FOLDER; },
+      get UserFolder() { return USER_FOLDER; },
+
+      read(filepath) {
+        let content = Storage.getContent(filepath);
+        if (!content) {
+          let file = findFile(filepath);
+          let ext = obtainFileExtension(filepath);
+          if (file) {
+            let blob = tryGetBlob(file);
+            content = ext == 'json' ? (JSON.parseFromString(blob) || []) : blob;
+          } else {
+            content = ext == 'json' ? [] : '';
+          }
+          Storage.setContent(filepath, content);
+        }
+        return Selector.sliceCopy(content);
+      },
+
+      write(filepath, content) {
+        let file = findFile(filepath) || createFile(filepath);
+        let ext = obtainFileExtension(filepath);
+        let raw = ext == 'json' ? JSON.stringify(content) : content;
+        trySetContent();
+
+        function trySetContent() {
+          try {
+            file.setContent(raw);
+            Storage.setContent(filepath, content);
+            if (raw.length > 0 && file.getSize() == 0) {
+              trySetContent();
+            }
+          } catch (error) {
+            Admin.printError(`При записи в файл произошла ошибка\n`, error.stack);
+            Admin.pause(5);
+            trySetContent();
+          }
+        }
+      },
+
+      append(filepath, content, place = 'end', limit = 100000) {
+        if (!content || content.length == 0) return;
+        let currentContent = read(filepath);
+        let ext = obtainFileExtension(filepath);
+        return ext == 'json' ? appendJSON() : appendString();
+
+        function appendJSON() {
+          return place == 'begin'
+            ? appendNewData(content, currentContent)
+            : appendNewData(currentContent, content);
+
+          function appendNewData(xData, yData) {
+            let allData = [];
+            Combiner.push(allData, xData, yData);
+            Selector.keepFirst(allData, limit);
+            write(filepath, allData);
+            return allData.length;
+          }
+        }
+
+        function appendString() {
+          let raw = place == 'begin' ? (content + currentContent) : (currentContent + content);
+          write(filepath, raw);
+          return raw.length;
+        }
+      }
+    };
+
+    function findFile(filepath) {
+      let file = Storage.getFile(filepath);
+      if (!file) {
+        let [folder, filename] = parsePath(filepath, false);
+        if (folder) {
+          let iterator = folder.getFilesByName(filename)
+          file = iterator.hasNext() ? iterator.next() : undefined;
+        }
+        Storage.setFile(filepath, file);
+      }
+      return file;
+    }
+
+    function createFile(filepath) {
+      let [folder, filename] = parsePath(filepath, true);
+      let file = folder.createFile(filename, '');
+      Storage.setFile(filepath, file);
+      return file;
+    }
+
+    function parsePath(filepath, isCreateFolder) {
+      let path = filepath.split('/');
+      let filename = path.splice(-1, 1)[0];
+      let rootFolder = USER_FOLDER;
+      if (path.length > 0) {
+        if (['user', '.'].includes(path[0])) {
+          path.splice(0, 1);
+        } else if (['root', '..'].includes(path[0])) {
+          rootFolder = ROOT_FOLDER;
+          path.splice(0, 1);
+        }
+      }
+      return [path.reduce((root, name) => getFolder(root, name, isCreateFolder), rootFolder),
+      formatFileExtension(filename)];
+    }
+
+    function getFolder(root, name, isCreateFolder) {
+      if (!root) return;
+      let iterator = root.getFoldersByName(name);
+      if (iterator.hasNext()) {
+        return iterator.next()
+      } else if (isCreateFolder) {
+        return root.createFolder(name);
+      }
+    }
+
+    function formatFileExtension(filename) {
+      if (!filename.includes('.')) {
+        filename += `.${obtainFileExtension(filename)}`;
+      }
+      return filename;
+    }
+
+    function obtainFileExtension(filename) {
+      let ext = filename.split('.');
+      return ext.length == 2 ? ext[1] : 'json';
+    }
+
+    function tryGetBlob(file) {
+      if (!file) return '';
+      try {
+        return file.getBlob().getDataAsString();
+      } catch (error) {
+        Admin.printError('При получении данных из файла произошла ошибка\n', error.stack);
+        Admin.pause(5);
+        return tryGetBlob(file);
+      }
+    }
+  })()
+
   const Combiner = (function () {
     Array.prototype.pushArrays = function (...rest) {
       this.push(...rest.flat(1));
@@ -836,5 +1005,5 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Combiner, Converter, CustomUrlFetchApp, Order, Playlist, Selector, Filter, Wrapper, customRequest: request, }
+  return { Auth, Cache, Combiner, Converter, CustomUrlFetchApp, Filter, Order, Playlist, Selector, Wrapper, customRequest: request }
 })()
