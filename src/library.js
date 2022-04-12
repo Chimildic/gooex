@@ -702,6 +702,20 @@ const gooex = (function () {
 
   const Filter = (function () {
     return {
+      dedupTracks(tracks) {
+        let ids = tracks.map(t => Converter.mapToStrIds(t)[0]);
+        let names = tracks.map(t => getTrackKeys(t)).flat(1);
+        tracks.replace(tracks.filter((t, i) =>
+          !ids.includes(Converter.mapToStrIds(t)[0], i + 1) &&
+          !getTrackKeys(t).some(key => names.includes(key, i + 1))
+        ));
+      },
+
+      dedupArtists(items) {
+        let ids = items.map(item => getArtistIds(item)).flat(1);
+        items.replace(items.filter((item, index) => !ids.includes(getArtistIds(item)[0], index + 1)));
+      },
+
       /**
        * Исключить треки из массива по примеру.
        * @param {Array} target Откуда исключить треки.
