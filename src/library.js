@@ -539,6 +539,32 @@ const gooex = (function () {
     }
   })()
 
+  const Context = (function () {
+    return {
+      getRecentTracks(trackCount, contextCount = 10, types) {
+        return Wrapper.Contexts.get(trackCount, contextCount, types)
+          .contexts.map(c => c.tracks).flat(1);
+      },
+
+      getKit(types = ['liked', 'disliked', 'recent'], ...rest) {
+        let kit = { all: [] };
+        types.forEach(type => {
+          let tracks;
+          if (type == 'liked') {
+            tracks = Wrapper.Likes.getLikedTracks();
+          } else if (type == 'disliked') {
+            tracks = Wrapper.Likes.getDislikedTracks();
+          } else if (type == 'recent') {
+            tracks = this.getRecentTracks(rest[0] || 1000, rest[1] || 20);
+          }
+          kit[type] = tracks;
+          kit.all.pushArrays(kit[type]);
+        });
+        return kit;
+      }
+    }
+  })()
+
   const Converter = (function () {
     return {
       mapToStrIds(value) {
@@ -1041,5 +1067,5 @@ const gooex = (function () {
     return Object.assign({}, Wrapper.Likes, overrideMethods);
   })()
 
-  return { Auth, Album, Cache, Combiner, Converter, CustomUrlFetchApp, Filter, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
+  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
 })()
