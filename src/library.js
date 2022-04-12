@@ -331,7 +331,7 @@ const gooex = (function () {
   const Album = (function () {
     return {
       getAlbumWithTracks(value) {
-        value = value.track || value;
+        value = value.track || value.trackId || value;
         let albumId = typeof value == 'string' ? value : (value.albumId || value.albums[0].id);
         let album = Wrapper.Albums.getAlbumWithTracks(albumId);
         return album.error == 'not-found' && album.duplicates && album.duplicates.length > 0
@@ -574,7 +574,7 @@ const gooex = (function () {
         }
         let array = Array.isArray(value) ? value : [value];
         let ids = array.map(item => {
-          item = item.track || item;
+          item = item.track || item.trackId || item;
           let id = item.id || '';
           if (item.kind) {
             id = `${item.uid || Auth.UserId}:${item.kind}`;
@@ -583,7 +583,7 @@ const gooex = (function () {
           } else if (item.id && item.albumId) {
             id = `${item.id}:${item.albumId}`;
           }
-          return id;
+          return `${id}`;
         });
         return ids.filter(item => item.length > 0);
       },
@@ -713,7 +713,7 @@ const gooex = (function () {
         let names = example.map(item => getTrackKeys(item)).flat(1);
         target.replace(target.filter(item => invert ^ (
           !ids.hasOwnProperty(item.id) &&
-          !getTrackKeys(item, mode).some(name => names.includes(name))
+          (item.title ? !getTrackKeys(item, mode).some(name => names.includes(name)) : true)
         )));
       },
 
@@ -744,7 +744,7 @@ const gooex = (function () {
       match(items, strRegex, invert = false) {
         let regex = new RegExp(strRegex, 'i');
         items.replace(items.filter((item) => {
-          item = item.track || item;
+          item = item.track || item.trackId || item;
           if (typeof item == 'undefined') {
             return false;
           } else if (item.hasOwnProperty('albums') && item.hasOwnProperty('artists')) {
@@ -763,10 +763,14 @@ const gooex = (function () {
     }
 
     function getTrackKeys(item, mode) {
-      item = item.track || item;
-      return mode == 'every'
-        ? item.artists.map(artist => `${artist.name} ${item.title}`.clearName())
-        : [`${item.artists[0].name} ${item.title}`.clearName()];
+      item = item.track || item.trackId || item;
+      if (item.albumId) {
+        return Converter.mapToStrIds(item);
+      } else if (mode == 'every') {
+        return item.artists.map(artist => `${artist.name} ${item.title}`.clearName());
+      } else {
+        return [`${item.artists[0].name} ${item.title}`.clearName()];
+      }
     }
 
     function getArtistIds(item, mode) {
