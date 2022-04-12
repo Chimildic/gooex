@@ -333,7 +333,9 @@ const gooex = (function () {
       getAlbumWithTracks(value) {
         value = value.track || value;
         let albumId = typeof value == 'string' ? value : (value.albumId || value.albums[0].id);
-        return Wrapper.Albums.getAlbumWithTracks(albumId);
+        let album = Wrapper.Albums.getAlbumWithTracks(albumId);
+        return album.error == 'not-found' && album.duplicates && album.duplicates.length > 0
+          ? album.duplicates[0] : album;
       },
 
       getBestTracks(value) {
