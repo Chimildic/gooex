@@ -1037,6 +1037,12 @@ const gooex = (function () {
             .get();
         }
       },
+
+      Users: {
+        getInfo(value) {
+          return request().withPath(`/users/${value}`).get();
+        }
+      }
     }
 
     function getArray(objType, ids) {
