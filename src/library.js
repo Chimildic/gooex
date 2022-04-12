@@ -226,38 +226,6 @@ const gooex = (function () {
     }
   })()
 
-  const Admin = (function () {
-    let isInfoLvl, isErrorLvl;
-    setLogLevelOnce();
-    return {
-      setLogLevelOnce, printInfo, printError, pause,
-    };
-
-    function setLogLevelOnce(level = 'info') {
-      if (level == 'info') {
-        isInfoLvl = isErrorLvl = true;
-      } else if (level == 'error') {
-        isInfoLvl = false;
-        isErrorLvl = true;
-      } else {
-        isInfoLvl = isErrorLvl = false;
-      }
-    }
-
-    function printInfo(...data) {
-      isInfoLvl && console.info(...data);
-    }
-
-    function printError(...data) {
-      isErrorLvl && console.error(...data);
-    }
-
-    function pause(seconds) {
-      isInfoLvl && console.info(`Операция продолжится после паузы ${seconds}с.`);
-      Utilities.sleep(seconds * 1000);
-    }
-  })()
-
   const Auth = (function () {
     const CLIENT_ID = '23cabbbdc6cd418abb4b39c32c41195d';
     const CLIENT_SECRET = '53bc75238f0c4d08a118e51fe9203300';
@@ -267,7 +235,7 @@ const gooex = (function () {
     let _passport = KeyValue.yandex ? JSON.parse(KeyValue.yandex) : {};
     return {
       get AccessToken() { return _passport.access_token },
-      get UserId() { return _passport.uid },
+      get UserId() { return `${_passport.uid}` },
 
       generateTokenByCredentials(login, password) {
         this.reset();
@@ -1085,6 +1053,54 @@ const gooex = (function () {
       getDislikedTracks() { return Wrapper.Tracks.getTracks(Wrapper.Likes.getDislikedTracks()) }
     }
     return Object.assign({}, Wrapper.Likes, overrideMethods);
+  })()
+
+  const Admin = (function () {
+    let isInfoLvl, isErrorLvl;
+    setLogLevelOnce();
+    if (GOOEX_BUILD != KeyValue.GOOEX_BUILD) {
+      UserProperties.setProperty('GOOEX_BUILD', GOOEX_BUILD);
+      sendVersion(GOOEX_BUILD);
+    }
+    return {
+      setLogLevelOnce, printInfo, printError, pause,
+    };
+
+    function setLogLevelOnce(level = 'info') {
+      if (level == 'info') {
+        isInfoLvl = isErrorLvl = true;
+      } else if (level == 'error') {
+        isInfoLvl = false;
+        isErrorLvl = true;
+      } else {
+        isInfoLvl = isErrorLvl = false;
+      }
+    }
+
+    function printInfo(...data) {
+      isInfoLvl && console.info(...data);
+    }
+
+    function printError(...data) {
+      isErrorLvl && console.error(...data);
+    }
+
+    function pause(seconds) {
+      isInfoLvl && console.info(`Операция продолжится после паузы ${seconds}с.`);
+      Utilities.sleep(seconds * 1000);
+    }
+
+    function sendVersion(value) {
+      let id = '1FAIpQLSeF9NcGjmI8TaqXZG7Ro40PxUddXu0jd74A3kdJVcGbPUG-yw'
+      CustomUrlFetchApp.fetch(`https://docs.google.com/forms/u/0/d/e/${id}/formResponse`, {
+        method: 'post',
+        payload: {
+          'entry.1598003363': value,
+          'entry.1594601658': ScriptApp.getScriptId(),
+          'entry.1666409024': Auth.UserId || 'install',
+        },
+      });
+    }
   })()
 
   return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
