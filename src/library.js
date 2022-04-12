@@ -768,6 +768,20 @@ const gooex = (function () {
     }
   })()
 
+  const Importer = (function () {
+    return {
+      importTracks(strTracks, delay = 200) {
+        let importCode = Wrapper.Importer.importTracks(strTracks);
+        let progress;
+        do {
+          Utilities.sleep(delay);
+          progress = Wrapper.Importer.getProgress('track', importCode);
+        } while (progress.status != 'done')
+        return progress.tracks;
+      }
+    }
+  })()
+
   const Selector = (function () {
     Array.prototype.sliceFirst = function (count) {
       return this.slice(0, count);
@@ -890,14 +904,14 @@ const gooex = (function () {
             .withQuery({ title: name })
             .withContentType('text/plain')
             .withBody(strTracks)
-            .post();
+            .post().importCode;
         },
 
         importTracks(strTracks) {
           return request()
             .withPath('/import/tracks')
             .withBody({ content: strTracks })
-            .post();
+            .post().importCode;
         }
       },
 
@@ -1110,5 +1124,5 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
+  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Importer, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
 })()
