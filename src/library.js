@@ -335,14 +335,14 @@ const gooex = (function () {
         let albumId = typeof value == 'string' ? value : (value.albumId || value.albums[0].id);
         let album = Wrapper.Albums.getAlbumWithTracks(albumId);
         return album.error == 'not-found' && album.duplicates && album.duplicates.length > 0
-          ? album.duplicates[0] : album;
+          ? Wrapper.Albums.getAlbumWithTracks(album.duplicates[0].id) : album;
       },
 
       getBestTracks(value) {
         let album = value;
         if (!value.hasOwnProperty('volumes') || !value.hasOwnProperty('bests'))
           album = this.getAlbumWithTracks(value);
-        if (album.volumes.length == 0 || album.bests.length == 0)
+        if (album.error || album.volumes.length == 0 || album.bests.length == 0)
           return [];
         return album.volumes.flat(1).filter(t => album.bests.some(id => t.id == id));
       }
