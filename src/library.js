@@ -533,6 +533,8 @@ const gooex = (function () {
             id = `${item.uid || Auth.UserId}:${item.kind}`;
           } else if (item.albums && item.albums.length > 0) {
             id = `${item.id}:${item.albums[0].id}`;
+          } else if (item.id && item.albumId) {
+            id = `${item.id}:${item.albumId}`;
           }
           return id;
         });
