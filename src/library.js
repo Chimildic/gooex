@@ -607,6 +607,7 @@ const gooex = (function () {
         let j = Math.floor(Math.random() * (i + 1));
         [this[i], this[j]] = [this[j], this[i]];
       }
+      return this;
     }
 
     return {
