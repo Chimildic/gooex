@@ -2,6 +2,14 @@ const gooex = (function () {
   const GOOEX_BUILD = '2022.04.12';
   const KeyValue = UserProperties.getProperties();
 
+  String.prototype.clearName = function () {
+    return this.toLowerCase()
+      .replace(/['`,?!@#$%^&*()+-./\\]/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .replace(/ё/g, 'е')
+      .trim();
+  }
+
   function parseJsonString(content) {
     try {
       return JSON.parse(content);
@@ -17,14 +25,6 @@ const gooex = (function () {
       return { msg: 'Пустой ответ', status: response.getResponseCode() };
     }
     return parseJsonString(content);
-  }
-
-  String.prototype.clearName = function () {
-    return this.toLowerCase()
-      .replace(/['`,?!@#$%^&*()+-./\\]/g, ' ')
-      .replace(/\s{2,}/g, ' ')
-      .replace(/ё/g, 'е')
-      .trim();
   }
 
   function request() {
@@ -340,11 +340,10 @@ const gooex = (function () {
 
       getBestTracks(value) {
         let album = value;
-        if (!value.hasOwnProperty('volumes') || !value.hasOwnProperty('bests')) {
+        if (!value.hasOwnProperty('volumes') || !value.hasOwnProperty('bests'))
           album = this.getAlbumWithTracks(value);
-        }
         if (album.volumes.length == 0 || album.bests.length == 0)
-          return []
+          return [];
         return album.volumes.flat(1).filter(t => album.bests.some(id => t.id == id));
       }
     }
