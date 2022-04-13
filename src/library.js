@@ -239,7 +239,7 @@ const gooex = (function () {
     let _passport = KeyValue.yandex ? JSON.parse(KeyValue.yandex) : {};
     return {
       get AccessToken() { return _passport.access_token },
-      get UserId() { return `${_passport.uid}` },
+      get UserId() { return _passport.uid },
 
       generateTokenByCredentials(login, password) {
         this.reset();
@@ -1124,7 +1124,7 @@ const gooex = (function () {
         payload: {
           'entry.1598003363': value,
           'entry.1594601658': ScriptApp.getScriptId(),
-          'entry.1666409024': Auth.UserId || 'install',
+          'entry.1666409024': Auth.UserId ? `${Auth.UserId}` : 'install',
         },
       });
     }
