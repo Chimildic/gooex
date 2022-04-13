@@ -665,11 +665,13 @@ const gooex = (function () {
         Wrapper.Playlists.deleteTracks(p.kind, 0, p.trackCount, p.revision);
         p.revision++;
       }
-      data.tracks.length > 0 && Wrapper.Playlists.insertTracks(p.kind, data.tracks, at, p.revision);
-      data.name != p.name && Wrapper.Playlists.changeName(p.kind, data.name);
-      data.description != p.description && Wrapper.Playlists.changeDescription(p.kind, data.description);
-      data.visibility != p.visibility && Wrapper.Playlists.changeVisibility(p.kind, data.visibility);
+      isValid(data.tracks) && Wrapper.Playlists.insertTracks(p.kind, data.tracks, at, p.revision);
+      isValid(data.name, p.name) && Wrapper.Playlists.changeName(p.kind, data.name);
+      isValid(data.description, p.description) && Wrapper.Playlists.changeDescription(p.kind, data.description);
+      isValid(data.visibility, p.visibility) && Wrapper.Playlists.changeVisibility(p.kind, data.visibility);
       return Converter.mapToStrIds(p)[0];
+
+      function isValid(x, y) { return x != undefined && x.length > 0 && x != y; }
     }
   })()
 
