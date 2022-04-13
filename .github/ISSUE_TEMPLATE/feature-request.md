@@ -1,6 +1,6 @@
 ---
-name: Feature request
-about: Предложить идею
+name: Идея
+about: Предложить идею для реализации
 title: ''
 labels: enhancement
 assignees: ''
