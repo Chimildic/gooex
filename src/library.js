@@ -1,5 +1,5 @@
 const gooex = (function () {
-  const GOOEX_BUILD = '2022.04.12';
+  const GOOEX_BUILD = '2022.04.13';
   const KeyValue = UserProperties.getProperties();
 
   String.prototype.clearName = function () {
@@ -25,6 +25,10 @@ const gooex = (function () {
       return { msg: 'Пустой ответ', status: response.getResponseCode() };
     }
     return parseJsonString(content);
+  }
+
+  function extractTrack(item) {
+    return item.track || item.trackId || item;
   }
 
   function request() {
@@ -542,7 +546,7 @@ const gooex = (function () {
         }
         let array = Array.isArray(value) ? value : [value];
         let ids = array.map(item => {
-          item = item.track || item.trackId || item;
+          item = extractTrack(item);
           let id = item.id || '';
           if (item.kind) {
             id = `${item.uid || Auth.UserId}:${item.kind}`;
@@ -747,7 +751,7 @@ const gooex = (function () {
     }
 
     function getTrackKeys(item, mode) {
-      item = item.track || item.trackId || item;
+      item = extractTrack(item);
       if (item.albumId) {
         return Converter.mapToStrIds(item);
       } else if (mode == 'every') {
@@ -764,7 +768,7 @@ const gooex = (function () {
     }
 
     function idToKey(array) {
-      return array.reduce((result, item, i) => (result[item.id] = i, result), {});
+      return array.reduce((result, item, i) => (result[extractTrack(item).id] = i, result), {});
     }
   })()
 
