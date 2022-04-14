@@ -66,7 +66,7 @@ layout: table_wrappers
       {% endif %}
     </nav>
     <footer class="site-footer">
-      Theme for Jekyll - <a href="https://github.com/pmarsceill/just-the-docs">Just the Docs</a>
+      © <a href="https://github.com/Chimildic">Chimildic</a>, 2022
     </footer>
   </div>
   <div class="main" id="top">
@@ -156,7 +156,7 @@ layout: table_wrappers
         {% if footer_custom != "" or site.last_edit_timestamp or site.gh_edit_link %}
           <hr>
           <footer>
-            {% if site.back_to_top %}
+            {% if site.back_to_top and content.size > 2000 %}
               <p><a href="#top" id="back-to-top">{{ site.back_to_top_text }}</a></p>
             {% endif %}
 
