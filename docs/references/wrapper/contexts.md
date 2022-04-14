@@ -2,6 +2,6 @@
 layout: default
 title: Contexts
 parent: Wrapper
-grand_parent: Индекс
-permalink: /references/wrapper/contexts
+grand_parent: Справочник
+permalink: /reference/wrapper/contexts
 ---

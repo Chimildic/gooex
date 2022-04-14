@@ -1,6 +1,14 @@
 ---
 layout: default
 title: Playlist
-parent: Индекс
-permalink: /references/playlist
+parent: Справочник
+permalink: /reference/playlist
 ---
+
+## getTracks
+
+## saveAsNew
+
+## saveWithAppend
+
+## saveWithReplace

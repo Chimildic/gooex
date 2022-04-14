@@ -2,6 +2,6 @@
 layout: default
 title: Likes
 parent: Wrapper
-grand_parent: Индекс
-permalink: /references/wrapper/likes
+grand_parent: Справочник
+permalink: /reference/wrapper/likes
 ---

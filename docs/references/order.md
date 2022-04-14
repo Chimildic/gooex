@@ -1,6 +1,10 @@
 ---
 layout: default
 title: Order
-parent: Индекс
-permalink: /references/order
+parent: Справочник
+permalink: /reference/order
 ---
+
+## shuffle
+
+## reverse

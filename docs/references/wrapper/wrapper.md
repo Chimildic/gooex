@@ -1,7 +1,7 @@
 ---
 layout: default
 title: Wrapper
-parent: Индекс
+parent: Справочник
 has_children: true
-permalink: /references/wrapper
+permalink: /reference/wrapper
 ---

@@ -1,6 +1,16 @@
 ---
 layout: default
 title: Selector
-parent: Индекс
-permalink: /references/selector
+parent: Справочник
+permalink: /reference/selector
 ---
+
+## keepFirst 
+
+## keepLast
+
+## keepAllExceptFirst
+
+## keepAllExceptLast
+
+## keepRandom

@@ -2,6 +2,6 @@
 layout: default
 title: Users
 parent: Wrapper
-grand_parent: Индекс
-permalink: /references/wrapper/users
+grand_parent: Справочник
+permalink: /reference/wrapper/users
 ---

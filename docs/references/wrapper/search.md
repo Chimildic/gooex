@@ -2,6 +2,6 @@
 layout: default
 title: Search
 parent: Wrapper
-grand_parent: Индекс
-permalink: /references/wrapper/search
+grand_parent: Справочник
+permalink: /reference/wrapper/search
 ---

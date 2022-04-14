@@ -39,9 +39,11 @@ back_to_top: true
 back_to_top_text: "Наверх"
 
 kramdown:
+  auto_ids: true
+  parse_block_html: true
   syntax_highlighter_opts:
     block:
-      line_numbers: true
+      line_numbers: false
 
 
 # Exclude from processing.

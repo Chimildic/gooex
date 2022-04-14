@@ -1,6 +1,10 @@
 ---
 layout: default
 title: Combiner
-parent: Индекс
-permalink: /references/combiner
+parent: Справочник
+permalink: /reference/combiner
 ---
+
+## replace
+
+## push

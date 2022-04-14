@@ -1,6 +1,16 @@
 ---
 layout: default
 title: Filter
-parent: Индекс
-permalink: /references/filter
+parent: Справочник
+permalink: /reference/filter
 ---
+
+## dedupTracks
+
+## dedupArtists
+
+## removeTracks
+
+## removeArtists
+
+## match

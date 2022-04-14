@@ -2,6 +2,6 @@
 layout: default
 title: Artists
 parent: Wrapper
-grand_parent: Индекс
-permalink: /references/wrapper/artists
+grand_parent: Справочник
+permalink: /reference/wrapper/artists
 ---

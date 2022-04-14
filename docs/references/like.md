@@ -1,6 +1,12 @@
 ---
 layout: default
 title: Like
-parent: Индекс
-permalink: /references/like
+parent: Справочник
+permalink: /reference/like
 ---
+
+## getLikedAlbums
+
+## getLikedTracks
+
+## getDislikedTracks
