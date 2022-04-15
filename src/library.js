@@ -595,11 +595,6 @@ const gooex = (function () {
 
   const Playlist = (function () {
     return {
-      /**
-       * Получить треки плейлиста(-ов) в одном массиве.
-       * @param {Array.<{kind: String, userId: String}>} value 
-       * @returns {Array} Треки
-       */
       getTracks(value) {
         if (typeof value == 'string' || typeof value == 'number') {
           return Wrapper.Playlists.getPlaylistWithTracks(arguments[0], arguments[1]).tracks;
@@ -612,31 +607,16 @@ const gooex = (function () {
         }).flat(1);
       },
 
-      /**
-       * Создать новый плейлист.
-       * @param {({name: String, tracks: Array, description: String, visibility: String})} data 
-       * @returns {String} Идентификатор плейлиста
-       */
       saveAsNew(data) {
         let p = Wrapper.Playlists.createEmptyPlaylist(data.name, data.visibility);
         return modifyPlaylist(p, data);
       },
 
-      /**
-       * Обновить плейлист. Добавляет треки в начало или конец списка.
-       * @param {({name: String, tracks: Array, description: String, visibility: String, at: String})} data 
-       * @returns {String} Идентификатор плейлиста
-       */
       saveWithAppend(data) {
         let p = findOrCreateUserPlaylist(data.name, data.kind);
         return modifyPlaylist(p, data);
       },
 
-      /**
-      * Обновить плейлист. Заменяет все треки.
-      * @param {({name: String, tracks: Array, description: String, visibility: String})} data 
-      * @returns {String} Идентификатор плейлиста
-      */
       saveWithReplace(data) {
         let p = findOrCreateUserPlaylist(data.name, data.kind);
         data.isReplace = true;
@@ -691,13 +671,6 @@ const gooex = (function () {
         items.replace(items.filter((item, index) => !ids.includes(getArtistIds(item)[0], index + 1)));
       },
 
-      /**
-       * Исключить треки из массива по примеру.
-       * @param {Array} target Откуда исключить треки.
-       * @param {Array} example Какие треки исключить.
-       * @param {Boolean} invert Инверсия результата.
-       * @param {String} mode Режим выбора исполнителей: `every` или `first`.
-       */
       removeTracks(target, example, invert = false, mode = 'every') {
         let ids = idToKey(example);
         let names = example.map(item => getTrackKeys(item)).flat(1);
@@ -707,13 +680,6 @@ const gooex = (function () {
         )));
       },
 
-      /**
-      * Исключить исполнителей из массива по примеру.
-      * @param {Array} target Откуда исключить исполнителей.
-      * @param {Array} example Каких исполнителей исключить.
-      * @param {Boolean} invert Инверсия результата.
-      * @param {String} mode Режим выбора исполнителей: `every` или `first`.
-      */
       removeArtists(target, example, invert = false, mode = 'every') {
         let artists = example.map(item => item.artists
           ? mode == 'every' ? item.artists : item.artists[0]
@@ -725,12 +691,6 @@ const gooex = (function () {
         ));
       },
 
-      /**
-       * Оставить элементы, которые удовлетворяют регулярному выражению.
-       * @param {Array} items Проверяемые элементы.
-       * @param {String} regex Регулярное выражение.
-       * @param {Boolean} invert Инверсия результата.
-       */
       match(items, strRegex, invert = false) {
         let regex = new RegExp(strRegex, 'i');
         items.replace(items.filter((item) => {
