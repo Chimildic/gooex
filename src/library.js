@@ -1,5 +1,5 @@
 const gooex = (function () {
-  const GOOEX_BUILD = '2022.04.13';
+  const GOOEX_BUILD = '2022.04.15';
   const KeyValue = UserProperties.getProperties();
 
   String.prototype.clearName = function () {
@@ -881,6 +881,27 @@ const gooex = (function () {
         }
       },
 
+      Landing: {
+        getBlocks(...blocks){
+          return request()
+          .withPath('/landing3')
+          .withQuery({ blocks: blocks.flat(1).join(',') })
+          .get().blocks;
+        },
+
+        getNewReleases() {
+          return request().withPath('/landing3/new-releases').get();
+        },
+
+        getNewPlaylists(){
+          return request().withPath('/landing3/new-playlists').get();
+        },
+
+        getChart(option) {
+          return request().withPath(`/landing3/chart/${option}`).get();
+        }
+      },
+
       Likes: (function () {
         const ACTION_TYPE = { ADD: 'add-multiple', REMOVE: 'remove' };
         return {
@@ -1033,6 +1054,24 @@ const gooex = (function () {
     }
   })()
 
+  const Landing = (function(){
+    return {
+      getPersonalPlaylists(...includeTypes) {
+        let entities = Wrapper.Landing.getBlocks('personal-playlists')[0].entities;
+        entities = includeTypes.length == 0 ? entities : entities.filter(item => includeTypes.includes(item.data.type));
+        return entities.map(entity => {
+            let playlist = entity.data.data;
+            return Wrapper.Playlists.getPlaylistWithTracks(playlist.kind, playlist.uid);
+        });
+      },
+
+      getPersonalTracks(...includeTypes) {
+        let playlist = gooex.Landing.getPersonalPlaylists(...includeTypes);
+        return playlist.map(p => p.tracks).flat(1);
+      }
+    }
+  })()
+
   const Like = (function () {
     let overrideMethods = {
       getLikedAlbums(userId) { return Wrapper.Albums.getAlbums(Wrapper.Likes.getLikedAlbums(userId)) },
@@ -1090,5 +1129,5 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Importer, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
+  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Importer, Landing, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
 })()
