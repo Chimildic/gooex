@@ -1,6 +1,6 @@
 const gooex = (function () {
-  const GOOEX_BUILD = '2022.04.15';
-  const KeyValue = UserProperties.getProperties();
+  const GOOEX_BUILD = '2022.04.16';
+  const GooexKeyValue = PropertiesService.getUserProperties().getProperties();
 
   String.prototype.clearName = function () {
     return this.toLowerCase()
@@ -100,7 +100,7 @@ const gooex = (function () {
     function fetchAll(requests) {
       requests.forEach((request) => (request.muteHttpExceptions = true));
       let responses = [];
-      let limit = KeyValue.REQUESTS_IN_ROW || 40;
+      let limit = GooexKeyValue.REQUESTS_IN_ROW || 40;
       let count = Math.ceil(requests.length / limit);
       for (let i = 0; i < count; i++) {
         let requestPack = requests.splice(0, limit);
@@ -236,7 +236,7 @@ const gooex = (function () {
     const X_TOKEN_CLIENT_ID = 'c0ebe342af7d48fbbbfcf2d2eedb8f9e';
     const X_TOKEN_CLIENT_SECRET = 'ad0a908f0aa341a182a37ecd75bc319e';
     const PASSPORT_URL = 'https://mobileproxy.passport.yandex.net';
-    let _passport = KeyValue.yandex ? JSON.parse(KeyValue.yandex) : {};
+    let _passport = GooexKeyValue.yandex ? JSON.parse(GooexKeyValue.yandex) : {};
     return {
       get AccessToken() { return _passport.access_token },
       get UserId() { return _passport.uid },
@@ -1084,7 +1084,7 @@ const gooex = (function () {
   const Admin = (function () {
     let isInfoLvl, isErrorLvl;
     setLogLevelOnce();
-    if (GOOEX_BUILD != KeyValue.GOOEX_BUILD) {
+    if (GOOEX_BUILD != GooexKeyValue.GOOEX_BUILD) {
       UserProperties.setProperty('GOOEX_BUILD', GOOEX_BUILD);
       sendVersion(GOOEX_BUILD);
     }
