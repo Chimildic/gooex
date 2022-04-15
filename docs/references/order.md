@@ -3,6 +3,7 @@ layout: default
 title: Order
 parent: Справочник
 permalink: /reference/order
+toc: true
 ---
 
 ## shuffle

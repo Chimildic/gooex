@@ -3,6 +3,7 @@ layout: default
 title: Album
 parent: Справочник
 permalink: /reference/album
+toc: true
 ---
 
 ## getAlbumWithTracks

@@ -3,6 +3,7 @@ layout: default
 title: Combiner
 parent: Справочник
 permalink: /reference/combiner
+toc: true
 ---
 
 ## push

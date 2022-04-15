@@ -4,6 +4,7 @@ title: Использование
 nav_order: 3
 description: ""
 permalink: /usage
+toc: true
 ---
 
 # Использование

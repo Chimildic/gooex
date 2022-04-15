@@ -8,3 +8,17 @@ blockquote {
     margin-inline-start: 0px !important;
     margin-inline-end: 0px !important;
 }
+
+.nav-toc-header {
+    display: block;
+    padding-top: 3rem;
+    padding-bottom: 0rem;
+    padding-right: 2rem;
+    padding-left: 2rem;
+}
+
+.nav-list-link-toc {
+    padding-left: 3rem !important;
+    padding-right: 2rem !important;
+    color: #5c5962;
+}
