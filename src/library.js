@@ -1,6 +1,7 @@
 const gooex = (function () {
-  const GOOEX_BUILD = '2022.04.16';
-  const GooexKeyValue = PropertiesService.getUserProperties().getProperties();
+  const gooexBuild = '2022.04.16';
+  const userProperties = PropertiesService.getUserProperties();
+  const gooexKeyValue = userProperties.getProperties();
 
   String.prototype.clearName = function () {
     return this.toLowerCase()
@@ -100,7 +101,7 @@ const gooex = (function () {
     function fetchAll(requests) {
       requests.forEach((request) => (request.muteHttpExceptions = true));
       let responses = [];
-      let limit = GooexKeyValue.REQUESTS_IN_ROW || 40;
+      let limit = gooexKeyValue.REQUESTS_IN_ROW || 40;
       let count = Math.ceil(requests.length / limit);
       for (let i = 0; i < count; i++) {
         let requestPack = requests.splice(0, limit);
@@ -236,7 +237,7 @@ const gooex = (function () {
     const X_TOKEN_CLIENT_ID = 'c0ebe342af7d48fbbbfcf2d2eedb8f9e';
     const X_TOKEN_CLIENT_SECRET = 'ad0a908f0aa341a182a37ecd75bc319e';
     const PASSPORT_URL = 'https://mobileproxy.passport.yandex.net';
-    let _passport = GooexKeyValue.yandex ? JSON.parse(GooexKeyValue.yandex) : {};
+    let _passport = gooexKeyValue.yandex ? JSON.parse(gooexKeyValue.yandex) : {};
     return {
       get AccessToken() { return _passport.access_token },
       get UserId() { return _passport.uid },
@@ -250,14 +251,14 @@ const gooex = (function () {
       },
 
       reset() {
-        UserProperties.deleteProperty('yandex');
+        userProperties.deleteProperty('yandex');
         bearer = {};
       }
     };
 
     function set(passport) {
       passport.date = new Date().toISOString();
-      UserProperties.setProperty('yandex', JSON.stringify(passport));
+      userProperties.setProperty('yandex', JSON.stringify(passport));
       _passport = passport;
     }
 
@@ -882,18 +883,18 @@ const gooex = (function () {
       },
 
       Landing: {
-        getBlocks(...blocks){
+        getBlocks(...blocks) {
           return request()
-          .withPath('/landing3')
-          .withQuery({ blocks: blocks.flat(1).join(',') })
-          .get().blocks;
+            .withPath('/landing3')
+            .withQuery({ blocks: blocks.flat(1).join(',') })
+            .get().blocks;
         },
 
         getNewReleases() {
           return request().withPath('/landing3/new-releases').get();
         },
 
-        getNewPlaylists(){
+        getNewPlaylists() {
           return request().withPath('/landing3/new-playlists').get();
         },
 
@@ -1054,14 +1055,14 @@ const gooex = (function () {
     }
   })()
 
-  const Landing = (function(){
+  const Landing = (function () {
     return {
       getPersonalPlaylists(...includeTypes) {
         let entities = Wrapper.Landing.getBlocks('personal-playlists')[0].entities;
         entities = includeTypes.length == 0 ? entities : entities.filter(item => includeTypes.includes(item.data.type));
         return entities.map(entity => {
-            let playlist = entity.data.data;
-            return Wrapper.Playlists.getPlaylistWithTracks(playlist.kind, playlist.uid);
+          let playlist = entity.data.data;
+          return Wrapper.Playlists.getPlaylistWithTracks(playlist.kind, playlist.uid);
         });
       },
 
@@ -1084,9 +1085,9 @@ const gooex = (function () {
   const Admin = (function () {
     let isInfoLvl, isErrorLvl;
     setLogLevelOnce();
-    if (GOOEX_BUILD != GooexKeyValue.GOOEX_BUILD) {
-      UserProperties.setProperty('GOOEX_BUILD', GOOEX_BUILD);
-      sendVersion(GOOEX_BUILD);
+    if (gooexBuild != gooexKeyValue.GOOEX_BUILD) {
+      userProperties.setProperty('GOOEX_BUILD', gooexBuild);
+      sendVersion(gooexBuild);
     }
     return {
       setLogLevelOnce, printInfo, printError, pause,
@@ -1116,12 +1117,13 @@ const gooex = (function () {
       Utilities.sleep(seconds * 1000);
     }
 
-    function sendVersion(value) {
-      let id = '1FAIpQLSeF9NcGjmI8TaqXZG7Ro40PxUddXu0jd74A3kdJVcGbPUG-yw'
+    function sendVersion(gooexBuild) {
+      let id = '1FAIpQLSdT85_xZApl35hJQRVAWmAzf7dSM051XKm5kyTxyrRANQYV0A';
       CustomUrlFetchApp.fetch(`https://docs.google.com/forms/u/0/d/e/${id}/formResponse`, {
         method: 'post',
         payload: {
-          'entry.1598003363': value,
+          'entry.1598003363': gooexBuild,
+          'entry.1570277654': userProperties.getProperty('VERSION'),
           'entry.1594601658': ScriptApp.getScriptId(),
           'entry.1666409024': Auth.UserId ? `${Auth.UserId}` : 'install',
         },
