@@ -1,5 +1,5 @@
 const gooex = (function () {
-  const gooexBuild = '2022.04.16';
+  const gooexBuild = '2022.04.21';
   const userProperties = PropertiesService.getUserProperties();
   const gooexKeyValue = userProperties.getProperties();
 
@@ -542,13 +542,10 @@ const gooex = (function () {
   const Converter = (function () {
     return {
       mapToStrIds(value) {
-        if (typeof value == 'string' || typeof value == 'number') {
-          return `${value}`;
-        }
         let array = Array.isArray(value) ? value : [value];
         let ids = array.map(item => {
           item = extractTrack(item);
-          let id = item.id || '';
+          let id = `${item.id || item || ''}`;
           if (item.kind) {
             id = `${item.uid || Auth.UserId}:${item.kind}`;
           } else if (item.albums && item.albums.length > 0) {
@@ -556,7 +553,7 @@ const gooex = (function () {
           } else if (item.id && item.albumId) {
             id = `${item.id}:${item.albumId}`;
           }
-          return `${id}`;
+          return id;
         });
         return ids.filter(item => item.length > 0);
       },
