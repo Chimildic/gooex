@@ -741,10 +741,70 @@ const gooex = (function () {
           Utilities.sleep(delay);
           progress = Wrapper.Importer.getProgress('track', importCode);
         } while (progress.status != 'done')
-        return progress.tracks;
+        return findBest(strTracks, progress.tracks);
       }
     }
+
+    function findBest(keywords, trackIds){
+      const MIN_DICE_RATING = gooexKeyValue.hasOwnProperty('MIN_DICE_RATING') ? parseFloat(gooexKeyValue.MIN_DICE_RATING) : 0.6805;
+      let tracks = Wrapper.Tracks.getTracks(trackIds);
+      keywords = (Array.isArray(keywords) ? keywords : keywords.split('\n')).map(k => k.clearName());
+      return tracks.filter(track => {
+        let fulltitle = `${track.artists[0].name} ${track.title}`.clearName();
+        let result = Search.DiceCoefficient.findBestMatch(fulltitle, keywords);
+        return result.bestMatch.rating >= MIN_DICE_RATING;
+      });
+    }
   })()
+
+  const Search = (function () {
+    return {
+      // https://github.com/aceakash/string-similarity
+      DiceCoefficient: {
+        findBestMatch(mainString, targetStrings) {
+          const ratings = [];
+          let bestMatchIndex = 0;
+          for (let i = 0; i < targetStrings.length; i++) {
+            const currentTargetString = targetStrings[i];
+            const currentRating = this.compareTwoStrings(mainString, currentTargetString);
+            ratings.push({ target: currentTargetString, rating: currentRating });
+            if (currentRating > ratings[bestMatchIndex].rating) {
+              bestMatchIndex = i;
+            }
+          }
+          return { ratings: ratings, bestMatch: ratings[bestMatchIndex], bestMatchIndex: bestMatchIndex };
+        },
+
+        compareTwoStrings(first, second) {
+          first = first.replace(/\s+/g, '');
+          second = second.replace(/\s+/g, '');
+
+          if (first === second) return 1; // identical or empty
+          if (first.length < 2 || second.length < 2) return 0; // if either is a 0-letter or 1-letter string
+
+          let firstBigrams = new Map();
+          for (let i = 0; i < first.length - 1; i++) {
+            const bigram = first.substring(i, i + 2);
+            const count = firstBigrams.has(bigram) ? firstBigrams.get(bigram) + 1 : 1;
+            firstBigrams.set(bigram, count);
+          }
+
+          let intersectionSize = 0;
+          for (let i = 0; i < second.length - 1; i++) {
+            const bigram = second.substring(i, i + 2);
+            const count = firstBigrams.has(bigram) ? firstBigrams.get(bigram) : 0;
+            if (count > 0) {
+              firstBigrams.set(bigram, count - 1);
+              intersectionSize++;
+            }
+          }
+
+          return (2.0 * intersectionSize) / (first.length + second.length - 2);
+        }
+      }
+    }
+  }
+  )()
 
   const Selector = (function () {
     Array.prototype.sliceFirst = function (count) {
@@ -1128,5 +1188,5 @@ const gooex = (function () {
     }
   })()
 
-  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Importer, Landing, Like, Order, Playlist, Selector, Wrapper, customRequest: request }
+  return { Auth, Album, Cache, Combiner, Context, Converter, CustomUrlFetchApp, Filter, Importer, Landing, Like, Order, Playlist, Search, Selector, Wrapper, customRequest: request }
 })()
