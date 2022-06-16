@@ -1,3 +1,15 @@
+function importToYandex(tracks, title) {
+  let strTracks = spotifyTracksToString_(tracks);
+  gooex.Playlist.saveWithReplace({
+    name: title,
+    tracks: gooex.Importer.importTracks(strTracks),
+  });
+
+  function spotifyTracksToString_(tracks) {
+    return tracks.map(t => `${t.artists[0].name} ${t.name}`.formatName()).join('\r\n');
+  }
+}
+
 const gooex = (function () {
   const gooexBuild = '2022.04.21';
   const userProperties = PropertiesService.getUserProperties();
